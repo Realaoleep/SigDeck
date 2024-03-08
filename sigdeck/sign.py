@@ -8,3 +8,8 @@ def sign_bytes(message, seed):
 
 
 def sign_file(path, seed):
+    data = path.read_bytes()
+    return sign_bytes(data, seed)
+
+
+def detached_path(path):
