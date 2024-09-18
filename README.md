@@ -1,6 +1,23 @@
 # SigDeck
 
-Small offline signing tool for my release files: Ed25519 keys, sign, verify.
+**Offline Ed25519 signing toolkit** - sign files, verify signatures, exchange
+keys via QR. Fully air-gapped: a pure-Python RFC 8032 implementation, scrypt
+passphrases, and ASCII armor.
 
-Built because every signing tool I tried wanted a key server or a network
-call. This one is a plain Python package that runs anywhere.
+## Layout
+
+```
+sigdeck/    the Python engine (pure stdlib)
+app/        minimal Android demo: scan QR keys, sign, verify
+docs/       guides
+examples/   recipes
+```
+
+## Quick start
+
+```
+pip install -e .
+sd keygen --out alice.key
+sd sign release.tar.gz --key alice.key
+sd verify release.tar.gz --sig release.tar.gz.sig --pub alice.pub
+```
