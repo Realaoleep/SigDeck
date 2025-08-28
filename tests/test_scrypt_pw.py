@@ -7,3 +7,16 @@ def test_seal_roundtrip():
     secret = bytes(range(32))
     payload = seal(secret, "correct horse battery staple")
     assert unseal(payload, "correct horse battery staple") == secret
+
+
+def test_wrong_passphrase():
+    secret = bytes(range(32))
+    payload = seal(secret, "right")
+    assert unseal(payload, "wrong") != secret
+
+
+def test_salt_randomizes():
+    secret = bytes(range(32))
+    a = seal(secret, "pw")
+    b = seal(secret, "pw")
+    assert a != b
