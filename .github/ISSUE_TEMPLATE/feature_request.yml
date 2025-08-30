@@ -4,3 +4,7 @@ labels: [enhancement]
 body:
   - type: textarea
     id: idea
+    attributes:
+      label: The idea
+    validations:
+      required: true
