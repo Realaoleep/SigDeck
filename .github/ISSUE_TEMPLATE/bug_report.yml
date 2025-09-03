@@ -11,9 +11,3 @@ body:
   - type: input
     id: version
     attributes:
-      label: SigDeck version
-  - type: dropdown
-    id: area
-    attributes:
-      label: Area
-      options: [signing, verification, armor, qr, cli, android app]
