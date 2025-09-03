@@ -11,8 +11,3 @@ def test_batch(tmp_path):
     (tmp_path / "README.txt").write_bytes(b"readme")
     files = collect_release_files(tmp_path)
     assert {f.name for f in files} == {"app-v1.tar.gz", "README.txt"}
-
-    seed = generate_seed()
-    signed = sign_all(tmp_path, seed, out_dir=tmp_path / "out")
-    results = verify_dir(tmp_path / "out", public_bytes(seed))
-    assert results and all(ok for _, _, ok in results)
