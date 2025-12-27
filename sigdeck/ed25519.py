@@ -1,10 +1,16 @@
-"""Pure-Python Ed25519 (RFC 8032) - readable, stdlib-only."""
+"""Pure-Python Ed25519 (RFC 8032) - readable, stdlib-only, test-vector verified.
+
+This is a from-scratch implementation kept deliberately small so it can be
+audited on an air-gapped machine. It matches the RFC 8032 test vectors in
+tests/test_ed25519.py.
+"""
 
 import hashlib
 
 P = 2 ** 255 - 19
 L = 2 ** 252 + 27742317777372353535851937790883648493
 D = -121665 * pow(121666, P - 2, P) % P
+I = pow(2, (P - 1) // 4, P)
 
 
 def _inv(a):
@@ -14,19 +20,33 @@ def _inv(a):
 def _xrecover(y):
     xx = (y * y - 1) * _inv(D * y * y + 1) % P
     x = pow(xx, (P + 3) // 8, P)
+    if (x * x - xx) % P:
+        x = x * I % P
     if x % 2:
         x = P - x
     return x
 
 
 _BY = 4 * _inv(5) % P
-B = (_xrecover(_BY), _BY)
+_BX = _xrecover(_BY)
+B = (_BX, _BY)
 
 
 def _encodepoint(point):
     x, y = point
     bits = [(y >> i) & 1 for i in range(255)] + [x & 1]
-    return bytes(sum(bits[i * 8 + j] << j for j in range(8)) for i in range(32))
+    return bytes(sum(bits[i * 8 + j] << j for j in range(8))
+                 for i in range(32))
+
+
+def _decodepoint(s):
+    if len(s) != 32:
+        raise ValueError("point must be 32 bytes")
+    y = int.from_bytes(s, "little") & ((1 << 255) - 1)
+    x = _xrecover(y)
+    if x & 1 != (s[31] >> 7):
+        x = P - x
+    return (x, y)
 
 
 def _point_add(p1, p2):
@@ -47,32 +67,47 @@ def _scalarmult(point, e):
     return q
 
 
-def sign(message, seed):
+def _scalarmult_base(e):
+    return _scalarmult(B, e)
+
+
+def public_key(seed):
+    """32-byte seed -> 32-byte public key."""
+    a, _ = _secret_expand(seed)
+    return _encodepoint(_scalarmult_base(a))
+
+
+def _secret_expand(seed):
     h = hashlib.sha512(seed).digest()
-    a = int.from_bytes(h[:32], "little") & ((1 << 254) - 8) | (1 << 254)
-    prefix = h[32:]
-    a_point = _encodepoint(_scalarmult(B, a))
+    a = int.from_bytes(h[:32], "little")
+    a &= (1 << 254) - 8
+    a |= 1 << 254
+    return a, h[32:]
+
+
+def sign(message, seed):
+    """32-byte seed + message -> 64-byte signature."""
+    a, prefix = _secret_expand(seed)
+    a_point = _encodepoint(_scalarmult_base(a))
     r = int.from_bytes(hashlib.sha512(prefix + message).digest(), "little") % L
-    r_point = _encodepoint(_scalarmult(B, r))
-    h2 = int.from_bytes(hashlib.sha512(r_point + a_point + message).digest(), "little") % L
-    s = (r + h2 * a) % L
+    r_point = _encodepoint(_scalarmult_base(r))
+    h = int.from_bytes(hashlib.sha512(r_point + a_point + message).digest(),
+                       "little") % L
+    s = (r + h * a) % L
     return r_point + s.to_bytes(32, "little")
 
 
 def verify(signature, message, public):
+    """64-byte signature + message + 32-byte public key -> bool."""
     if len(signature) != 64:
         return False
     r_point = _decodepoint(signature[:32])
     a_point = _decodepoint(public)
-    h = int.from_bytes(hashlib.sha512(signature[:32] + public + message).digest(), "little") % L
+    h = int.from_bytes(hashlib.sha512(signature[:32] + public + message).digest(),
+                       "little") % L
     s = int.from_bytes(signature[32:], "little")
-    return _encodepoint(_scalarmult(B, s)) == _encodepoint(
-        _point_add(r_point, _scalarmult(a_point, h)))
-
-
-def _decodepoint(s):
-    y = int.from_bytes(s, "little") & ((1 << 255) - 1)
-    x = _xrecover(y)
-    if x & 1 != (s[31] >> 7):
-        x = P - x
-    return (x, y)
+    if s >= L:
+        return False
+    left = _encodepoint(_scalarmult_base(s))
+    right = _encodepoint(_point_add(r_point, _scalarmult(a_point, h)))
+    return left == right
