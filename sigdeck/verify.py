@@ -31,3 +31,4 @@ def verify_dir(directory, public, suffix=".sig"):
             continue
         ok = verify_file(sig_path, target, public)
         results.append((target.name, "ok" if ok else "FAILED", ok))
+    return results
