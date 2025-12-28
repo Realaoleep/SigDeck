@@ -46,3 +46,33 @@ def armor_secret(seed, comment=""):
     lines.append(_wrap(body))
     lines.append(ARMOR_END.replace("{kind}", "SECRET"))
     return "\n".join(lines) + "\n"
+
+
+def _parse(text, kind):
+    begin = ARMOR_PUB if kind == "PUBLIC" else ARMOR_SEC
+    end = ARMOR_END.replace("{kind}", kind)
+    if begin not in text or end not in text:
+        raise KeyError2(f"not a SIGDECK {kind} key")
+    body = text.split(begin, 1)[1].split(end, 1)[0]
+    chunks = []
+    for line in body.splitlines():
+        line = line.strip()
+        if not line or line.startswith("Comment:"):
+            continue
+        chunks.append(line)
+    return base64.b64decode("".join(chunks))
+
+
+def load_public(path):
+    text = Path(path).read_text("utf-8")
+    return _parse(text, "PUBLIC")
+
+
+def load_secret(path):
+    text = Path(path).read_text("utf-8")
+    return _parse(text, "SECRET")
+
+
+def save_armored(path, armored):
+    Path(path).write_text(armored, "utf-8")
+    return path
