@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.1.0] - 2026-03-18
+- batch verify + CI polish, keyboard shortcuts doc
+- verify_dir reports missing targets explicitly
+
 ## [2.0.0] - 2025-10-08
 - Android demo app with sign/verify screens
 - QR payload format finalised (SGDK1:)
@@ -19,4 +23,3 @@
 - scrypt passphrase sealing, armored key files
 
 ## [0.1.0] - 2022-09-10
-- initial sign/verify CLI with from-scratch Ed25519
