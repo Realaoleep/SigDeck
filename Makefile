@@ -7,3 +7,8 @@ test:
 
 lint:
 	$(PY) -m compileall -q sigdeck/
+
+keygen:
+	$(PY) -m sigdeck.cli keygen --out demo.key
+
+clean:
