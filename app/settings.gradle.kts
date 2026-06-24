@@ -11,3 +11,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "SigDeck"
+include(":app")
