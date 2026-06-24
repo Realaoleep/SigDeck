@@ -13,3 +13,4 @@ class VerifyActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.status).text =
             "Scan the SGDK1:key QR payload to load a public key (demo placeholder)."
     }
+}
