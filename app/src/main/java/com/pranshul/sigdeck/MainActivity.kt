@@ -18,3 +18,4 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, VerifyActivity::class.java))
         }
     }
+}
