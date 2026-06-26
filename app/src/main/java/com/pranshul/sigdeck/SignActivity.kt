@@ -19,3 +19,4 @@ class SignActivity : AppCompatActivity() {
             "No key yet - import one via the QR flow first."
         }
     }
+}
