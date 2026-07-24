@@ -6,3 +6,4 @@
 4. `sd verify release.tar.gz --sig release.tar.gz.sig --pub alice.pub`.
 
 For an air gap: `sd export-qr --pub alice.pub --out key.qr.txt`, print it,
+scan it with the Android demo.
