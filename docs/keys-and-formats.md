@@ -6,3 +6,4 @@
 - Signatures: raw 64 bytes on disk, or armored `SIGDECK SIGNATURE` blocks
   with a CRC32 trailer for printer/copy survival.
 - Optional passphrase: `sigdeck/scrypt_pw.py` seals the scalar with
+  scrypt-derived key material (`n=2^14, r=8, p=1`).
