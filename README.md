@@ -59,3 +59,4 @@ CI mirrors it.
 
 ## License
 
+MIT - see [LICENSE](LICENSE).
