@@ -11,3 +11,4 @@ Users verify with:
 sd verify app-v1.2.tar.gz --sig app-v1.2.tar.gz.sig --pub release.pub
 ```
 
+Batch: `sigdeck/batch.py` signs every file in a directory in one pass.
