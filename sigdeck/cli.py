@@ -41,9 +41,11 @@ def _do_sign(args):
 
 
 def _do_verify(args):
+    from .sign import detached_path
     from .verify import verify_file
     public = load_public(args.pub)
-    ok = verify_file(Path(args.sig), Path(args.file), public)
+    sig_path = Path(args.sig) if args.sig else detached_path(Path(args.file))
+    ok = verify_file(sig_path, Path(args.file), public)
     print("Verified" if ok else "FAILED")
     return 0 if ok else 1
 

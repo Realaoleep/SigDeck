@@ -1,5 +1,7 @@
 """Verification entry point."""
 
+from pathlib import Path
+
 from . import ed25519
 
 
@@ -20,7 +22,7 @@ def verify_file(signature_path, file_path, public):
 
 def verify_dir(directory, public, suffix=".sig"):
     """Batch verify: every <file><suffix> in a directory."""
-    directory = __import__("pathlib").Path(directory)
+    directory = Path(directory)
     results = []
     for sig_path in sorted(directory.iterdir()):
         if sig_path.suffix != suffix:
